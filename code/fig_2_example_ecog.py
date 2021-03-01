@@ -52,8 +52,14 @@ gs = gridspec.GridSpecFromSubplotSpec(
 
 # -- plot electrode PSD + SNR
 ax1 = plt.subplot(gs[0, 0])
+cmap1 = ["#2d004f", "#254f00", "#000000"]
 helper.plot_psd(
-    ax1, raw, cmap=cmap1, SNR=SNR_electrodes, peak=peak, bin_width=bin_width
+    ax1,
+    raw,
+    cmap=cmap1,
+    SNR=SNR_electrodes,
+    peak=peak,
+    bin_width=bin_width,
 )
 
 # -- plot PSD for SSD component
@@ -126,10 +132,10 @@ for i in range(nr_components):
         filters[:, i],
         raw_org.info,
         ax,
-        plot_head=None,
+        plot_head=False,
         picks=picks,
         cmap="PiYG",
-        cmap1=["dimgrey"],
+        pick_color=["dimgrey"],
         vmin=-0.75,
         vmax=0.75,
     )
@@ -147,12 +153,12 @@ for i in range(nr_components):
         patterns[:, i],
         raw_org.info,
         ax1,
-        plot_head=None,
+        plot_head=False,
         picks=picks,
         cmap="RdBu_r",
         vmin=-1.5,
         vmax=1.5,
-        cmap1=["dimgrey"],
+        pick_color=["dimgrey"],
     )
 
     ax1.set_title("component %i" % (i + 1))

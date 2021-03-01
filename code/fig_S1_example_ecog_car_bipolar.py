@@ -139,8 +139,8 @@ helper.make_topoplot(
     ax=ax1,
     picks=elecs,
     cmap="Greys",
-    plot_head=None,
-    cmap1=cmap,
+    plot_head=False,
+    pick_color=cmap,
 )
 
 
@@ -187,8 +187,8 @@ helper.make_topoplot(
     ax=ax1,
     picks=elecs,
     cmap="Greys",
-    plot_head=None,
-    cmap1=cmap,
+    plot_head=False,
+    pick_color=cmap,
 )
 
 # -- common average reference
@@ -223,8 +223,8 @@ helper.make_topoplot(
     ax=ax1,
     picks=picks,
     cmap="Greys",
-    plot_head=None,
-    cmap1=cmap,
+    plot_head=False,
+    pick_color=cmap,
 )
 
 

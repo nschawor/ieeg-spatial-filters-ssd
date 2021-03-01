@@ -89,9 +89,10 @@ for i in range(2):
         raw.info,
         ax1,
         picks=[picks[i]],
-        cmap1=["g"],
+        pick_color=["g"],
         cmap="RdBu_r",
-        side="left",
+        hemisphere="left",
+        plot_head=True,
     )
 
 
@@ -182,6 +183,7 @@ labels = [
     "spatial spread over multiple electrodes",
     "spatial spread with one predominant maximum",
 ]
+
 for i_cond in range(len(examples)):
 
     examples1 = examples[i_cond]
@@ -198,7 +200,7 @@ for i_cond in range(len(examples)):
         maxC = df1.iloc[0].spread
         peak = df1.iloc[0].peak
 
-        q = np.argmax(np.abs(pattern))
+        idx_max = np.argmax(np.abs(pattern))
         raw = mne.io.read_raw_fif(
             "../working/%s_fixation_pwrlaw_raw.fif" % participant
         )
@@ -214,11 +216,11 @@ for i_cond in range(len(examples)):
             raw.info,
             ax1,
             cmap="Reds",
-            picks=[q],
-            cmap1="g",
+            picks=[idx_max],
+            pick_color=["g"],
             vmin=0,
             vmax=1,
-            outlines1=None,
+            plot_head=None,
             size=40,
         )
         xlim = ax1.get_xlim()

@@ -188,11 +188,10 @@ for i in range(2):
         raw.info,
         ax1,
         picks=[picks[i]],
-        cmap1=["g"],
+        pick_color=["g"],
         cmap="RdBu_r",
-        side="left",
-        plot_head=None,
-        edgecolor="tab:green",
+        hemisphere="left",
+        plot_head=False,
     )
 
 

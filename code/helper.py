@@ -16,18 +16,17 @@ def make_topoplot(
     values,
     info,
     ax,
-    picks=None,
     vmin=None,
     vmax=None,
-    mask=[],
-    plot_head="head",
+    plot_head=True,
     cmap="RdBu_r",
     size=30,
-    edgecolor="g",
-    side="all",
-    cmap1=["#2d004f", "#254f00", "#000000"],
+    hemisphere="all",
+    picks=None,
+    pick_color=["#2d004f", "#254f00", "#000000"],
 ):
     """Makes an ECoG topo plot with electrodes circles, without interpolation.
+    Modified from MNE plot_topomap to plot electrodes without interpolation.
 
     Parameters
     ----------
@@ -41,17 +40,17 @@ def make_topoplot(
          Lower bound of the color range. If None: - maximum absolute value.
     vmax : float | None
         Upper bounds of the color range. If None: maximum absolute value.
-    mask : array, 1-D of bool values | []
-        Channels to be marked with an increased outline.
-    plot_head : "head" | None
+    plot_head : True | False
         Whether to plot the outline for the head.
     cmap : matplotlib colormap | None
-        Colormap to use, if None, defaults to RdBu_r.
+        Colormap to use for values, if None, defaults to RdBu_r.
     size : int
         Size of electrode circles.
-    edgecolor :
-        Color of edges for masked electrodes.
-    side : string ("left", "right", "all")
+    picks : list | None
+        Which electrodes should be highlighted with by drawing a thicker edge.
+    pick_color : list
+        Edgecolor for highlighted electrodes.
+    hemisphere : string ("left", "right", "all")
         Restrict which hemisphere of head outlines coordinates to plot.
 
     Returns
@@ -66,18 +65,18 @@ def make_topoplot(
         sphere=sphere, pos=pos, outlines="head", clip_origin=(0.0, 0.0)
     )
 
-    if plot_head == "head":
+    if plot_head:
         outlines_ = {
             k: v for k, v in outlines.items() if k not in ["patch", "mask_pos"]
         }
         for key, (x_coord, y_coord) in outlines_.items():
-            if side == "left":
+            if hemisphere == "left":
                 if type(x_coord) == np.ndarray:
                     idx = x_coord <= 0
                     x_coord = x_coord[idx]
                     y_coord = y_coord[idx]
                 ax.plot(x_coord, y_coord, color="k", linewidth=1, clip_on=False)
-            elif side == "right":
+            elif hemisphere == "right":
                 if type(x_coord) == np.ndarray:
                     idx = x_coord >= 0
                     x_coord = x_coord[idx]
@@ -104,14 +103,14 @@ def make_topoplot(
     if np.any(picks):
         picks = np.array(picks)
         if picks.ndim > 0:
-            if len(cmap1) == 1:
-                cmap1 = [cmap1] * len(picks)
+            if len(pick_color) == 1:
+                pick_color = [pick_color] * len(picks)
             for i, idxx in enumerate(picks):
                 ax.scatter(
                     pos[idxx, 0],
                     pos[idxx, 1],
                     s=size,
-                    edgecolors=cmap1[i],
+                    edgecolors=pick_color[i],
                     facecolors="None",
                     linewidths=1.5,
                     c=None,
@@ -121,14 +120,14 @@ def make_topoplot(
                 )
 
         if picks.ndim == 2:
-            if len(cmap1) == 1:
-                cmap1 = [cmap1] * len(picks)
+            if len(pick_color) == 1:
+                pick_color = [pick_color] * len(picks)
             for i, idxx in enumerate(picks):
                 ax.plot(
                     pos[idxx, 0],
                     pos[idxx, 1],
                     linestyle="-",
-                    color=cmap1[i],
+                    color=pick_color[i],
                     linewidth=1.5,
                 )
 
@@ -359,7 +358,19 @@ def plot_electrodes(raw):
 
 
 def create_bipolar_derivation(raw, rows, prefix="bipolar"):
+    """Convenience function for creating bipolar channels.
 
+    Parameters
+    ----------
+    raw : instance of Raw
+        Raw instance containing traces for which bipolar derivation is taken.
+    rows : list
+        List of lists containing electrode indices, each list is treated
+        separately. Bipolar channels are create between adjacent electrode
+        entries.
+    prefix : string
+        Prefix for creating channel names.
+    """
     counter = 0
     nr_channels = len(raw.ch_names)
     nr_bipolar_channels = len(rows) * (len(rows[0]) - 1)
@@ -378,18 +389,31 @@ def create_bipolar_derivation(raw, rows, prefix="bipolar"):
 
 
 def plot_timeseries(
-    ax1, raw, cmap=["#2d004f", "#254f00", "#000000"], label=None
+    ax, raw, cmap=["#2d004f", "#254f00", "#000000"], label=None
 ):
+    """Convenience function for plotting raw traces.
+
+    Parameters
+    ----------
+    ax : instance of Axes
+        The axes to plot to.
+    raw : instance of Raw
+        Raw instance containing traces for which PSD is computed.
+    cmap : list
+        Colors for traces, specify for each channel.
+    label : string
+        Label to be plotted as title of axes.
+    """
 
     nr_channels = len(raw.ch_names)
     for i_pick in range(nr_channels):
         signal = raw._data[i_pick]
         signal = signal / np.ptp(signal)
-        ax1.plot(raw.times, signal - i_pick, color=cmap[i_pick], lw=1)
+        ax.plot(raw.times, signal - i_pick, color=cmap[i_pick], lw=1)
 
     ymin = -nr_channels + 0.25
     ymax = 0.45
-    ax1.set(
+    ax.set(
         xlim=(raw.times[0], raw.times[-1]),
         xticks=np.arange(0, 2.01, 0.5),
         yticks=[],
@@ -399,27 +423,45 @@ def plot_timeseries(
 
 
 def plot_psd(
-    ax1, raw, SNR, peak, cmap=["#2d004f", "#254f00", "#000000"], bin_width=0
+    ax, raw, SNR, peak, cmap=["#2d004f", "#254f00", "#000000"], bin_width=0
 ):
+    """Convenience function for plotting PSDs and SNR for a specific band.
+
+    Parameters
+    ----------
+    ax : instance of Axes
+        The axes to plot to.
+    raw : instance of Raw
+        Raw instance containing traces for which PSD is computed.
+    SNR : array, 1-D
+        array containing SNR values to be annotated, output of get_SNR.
+    peak :
+        Peak frequency to highlight.
+    cmap :
+        Colors for PSDs, specify for each channel.
+    bin_width :
+        Bandwidth to highlight, [peak-bin_width, peak-bin_width]
+    """
     nr_seconds = 3
+
     n_fft = int(nr_seconds * raw.info["sfreq"])
     psd, freqs = mne.time_frequency.psd_welch(raw, fmin=1, fmax=70, n_fft=n_fft)
 
     for i in range(len(raw.ch_names)):
-        ax1.plot(freqs, 10 * np.log10(psd[i].T), color=cmap[i], lw=1)
+        ax.plot(freqs, 10 * np.log10(psd[i].T), color=cmap[i], lw=1)
 
-    # plot aperiodic fit as example for first channel
+    # plot aperiodic fit as example for first electrode
     fg = fooof.FOOOF()
     idx1 = 0
     fg.fit(freqs, psd[idx1])
-    ax1.plot(
+    ax.plot(
         fg.freqs, 10 * fg._ap_fit, color=cmap[idx1], linestyle="--", alpha=0.8
     )
     idx_max = np.argmax(psd[idx1])
     peak_freq = freqs[idx_max]
     peak_freq = fooof.analysis.get_band_peak_fm(fg, [peak - 2, peak + 2])[0]
 
-    ax1.plot(
+    ax.plot(
         [peak_freq, peak_freq],
         [10 * fg._ap_fit[idx_max], 10 * np.log10(psd[idx1][idx_max])],
         lw=1,
@@ -428,16 +470,16 @@ def plot_psd(
     )
 
     for i in range(len(raw.ch_names)):
-        ax1.text(
+        ax.text(
             45,
-            -4.5 * i + 0.95 * ax1.get_ylim()[1],
+            -4.5 * i + 0.95 * ax.get_ylim()[1],
             "SNR=%.1f dB" % SNR[i],
             color=cmap[i],
             ha="right",
         )
 
     # set axes properties
-    ax1.set(
+    ax.set(
         xlim=(1, 45),
         xlabel="frequency [Hz]",
         ylabel="log PSD",
@@ -445,15 +487,39 @@ def plot_psd(
         yticklabels=[],
     )
 
-    ax1.axvspan(
-        peak - bin_width, peak + bin_width, color="gray", alpha=0.25, zorder=-3
-    )
+    # highlight frequency band
+    if bin_width > 0:
+        ax.axvspan(
+            peak - bin_width,
+            peak + bin_width,
+            color="gray",
+            alpha=0.25,
+            zorder=-3,
+        )
 
 
-def get_SNR(raw, fmin=1, fmax=55, nr_sec=3, freq=[8, 13]):
-    """ Compute power spectrum and calculate 1/f-corrected SNR in one band."""
+def get_SNR(raw, fmin=1, fmax=55, seconds=3, freq=[8, 13]):
+    """Compute power spectrum and calculate 1/f-corrected SNR in one band.
+
+    Parameters
+    ----------
+    raw : instance of Raw
+        Raw instance containing traces for which to compute SNR
+    fmin : float
+        minimum frequency that is used for fitting spectral model.
+    fmax : float
+        maximum frequency that is used for fitting spectral model.
+    seconds: float
+        Window length in seconds, converts to FFT points for PSD calculation.
+    freq : list | [8, 13]
+        SNR in that frequency window is computed.
+    Returns
+    -------
+    SNR : array, 1-D
+        Contains SNR (1/f-corrected, for a chosen frequency) for each channel.
+    """
     SNR = np.zeros((len(raw.ch_names),))
-    n_fft = int(nr_sec * raw.info["sfreq"])
+    n_fft = int(seconds * raw.info["sfreq"])
     psd, freqs = mne.time_frequency.psd_welch(
         raw, fmin=fmin, fmax=fmax, n_fft=n_fft
     )
