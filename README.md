@@ -3,7 +3,7 @@
 This repository provides analysis code to compute data-driven spatial filters using spatio-spectral decomposition in intracranial electrophysiological data. The repository code recreates results and figures from the following manuscript:
 
 # Reference
-Schaworonkow N & Voytek B: [Enhancing oscillations in intracranial electrophysiological recordings with data-driven spatial filters](XXX) _bioRxiv_ (2021). doi:XXX
+Schaworonkow N & Voytek B: [Enhancing oscillations in intracranial electrophysiological recordings with data-driven spatial filters](https://biorxiv.org/cgi/content/short/2021.02.26.433127v1) _bioRxiv_ (2021). doi:10.1101/2021.02.26.433127
 
 # Dataset
 The results are based on following available openly available data set: [A library of human electrocorticographic data and analyses.](https://exhibits.stanford.edu/data/catalog/zk881ps0522) which is described in detail in following article:
