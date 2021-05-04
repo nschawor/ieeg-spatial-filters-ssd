@@ -52,16 +52,25 @@ for i_sub, (participant, exp) in enumerate(zip(participants, experiments)):
         ax1 = ax.flatten()[counter]
         fg = fooof.FOOOF(max_n_peaks=5, min_peak_height=0.5)
         fg.fit(freq, psd[i])
-        fg.plot(
-            ax=ax1,
-            add_legend=False,
-            plot_style=None,
-            plot_peaks="line",
-        )
+
+        peak_params = fg.get_params("peak_params")
+
+        if not np.isnan(peak_params.flatten()[0]):
+            fg.plot(
+                ax=ax1,
+                add_legend=False,
+                plot_style=None,
+                plot_peaks="line",
+            )
+        else:
+            fg.plot(
+                ax=ax1,
+                add_legend=False,
+                plot_style=None
+            )
 
         # if peaks were identified print them into axes
-        peak_params = fg.get_params("peak_params")
-        if not (np.isnan(peak_params.flatten()[0])):
+        if not np.isnan(peak_params.flatten()[0]):
             ax1.text(
                 15,
                 ax1.get_ylim()[1] - 0.05 * ax1.get_ylim()[1],
