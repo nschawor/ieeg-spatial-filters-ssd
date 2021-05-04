@@ -4,3 +4,4 @@ scipy==1.6.0
 mne==0.20.4
 fooof==1.0.0
 bycycle==0.1.3
+pyvista==0.29.1
