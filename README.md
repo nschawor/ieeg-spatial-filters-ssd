@@ -3,13 +3,13 @@
 This repository provides analysis code to compute data-driven spatial filters using spatio-spectral decomposition in intracranial electrophysiological data. The repository code recreates results and figures from the following manuscript:
 
 # Reference
-Schaworonkow N & Voytek B: [Enhancing oscillations in intracranial electrophysiological recordings with data-driven spatial filters](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009298) _PLoS Computional Biology_ (2021). https://doi.org/10.1371/journal.pcbi.1009298
+Schaworonkow N & Voytek B: [Enhancing oscillations in intracranial electrophysiological recordings with data-driven spatial filters](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009298) _PLoS Computional Biology_ (2021). [doi:10.1371/journal.pcbi.1009298](https://doi.org/10.1371/journal.pcbi.1009298).
 
 
 # Dataset
 The results are based on following available openly available data set: [A library of human electrocorticographic data and analyses.](https://exhibits.stanford.edu/data/catalog/zk881ps0522) which is described in detail in following article:
 
-Miller, K.J. A library of human electrocorticographic data and analyses. _Nature Human Behavior_ 3, 1225–1235 (2019). https://doi.org/10.1038/s41562-019-0678-3.
+Miller, K.J. A library of human electrocorticographic data and analyses. _Nature Human Behavior_ 3, 1225–1235 (2019). [doi:10.1038/s41562-019-0678-3](https://doi.org/10.1038/s41562-019-0678-3).
 
 To reproduce the figures from the spatial filters manuscript, the data set should be downloaded and placed in the folder ```data```.
 
